@@ -1,1 +1,0 @@
-/home/banunu/work/programming101dev/scripts/supported_c_compilers.txt
