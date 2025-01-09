@@ -6,14 +6,13 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-
 #define PORT 8080
 #define BUFFER_SIZE 1024
 
 int main(void) {
-  
+
+
   int serverfd;
-  int clientfd;
   socklen_t host_addrlen;
   struct sockaddr_in host_addr;
   char buffer[BUFFER_SIZE];
@@ -33,18 +32,23 @@ int main(void) {
     return EXIT_FAILURE;
   }
 
-  while(1) {
-    int clientfd = accept(serverfd, (struct sockaddr *)&host_addr, &host_addrlen);
-    if(clientfd < 0) {
+  while (1) {
+    ssize_t valread;
+    int clientfd;
+    clientfd = accept(serverfd, (struct sockaddr *)&host_addr, &host_addrlen);
+    if (clientfd < 0) {
       perror("Client File Descriptor");
+      continue;
+    }
+
+    valread = read(clientfd, buffer, BUFFER_SIZE);
+    if (valread < 0) {
       close(clientfd);
       continue;
     }
-    
-    int valread = read(clientfd, buffer, BUFFER_SIZE);
     printf("%s", buffer);
 
-    write(clientfd, "hi", 3);
+    write(clientfd, "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nHello\0", 52);
     close(clientfd);
   }
 
