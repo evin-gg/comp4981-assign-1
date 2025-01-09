@@ -31,10 +31,12 @@ int main(void) {
     return EXIT_FAILURE;
   }
 
-  // while(1) {
-  //   int clientfd = accept(serverfd, (struct sockaddr *)&host_addr, host_addrlen);
-  //   if()
-  // }
+  while(1) {
+    int clientfd = accept(serverfd, (struct sockaddr *)&host_addr, host_addrlen);
+    if(clientfd < 0) {
+      perror("")
+    }
+  }
 
   printf("Success??\n");
   close(serverfd);
