@@ -8,12 +8,12 @@
 void setup_socket(int *fd) {
     *fd = socket(AF_INET, SOCK_STREAM, 0);
     if (*fd < 0) {
-        perror("Socket creation");
+        perror("Server Socket creation");
         exit(EXIT_FAILURE);
     }
 }
 
-void setup_address(struct sockaddr_in *addr, socklen_t *addrlen, int port) {
+void setup_address(struct sockaddr_in *addr, socklen_t *addrlen, in_port_t port) {
     memset(addr, 0, sizeof(*addr));
 
     addr->sin_family = AF_INET;

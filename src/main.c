@@ -8,13 +8,15 @@
 
 
 #define PORT 8080
-#define MAXCON 5
+#define BUFFER_SIZE 1024
 
 int main(void) {
+  
   int serverfd;
   int clientfd;
   socklen_t host_addrlen;
   struct sockaddr_in host_addr;
+  char buffer[BUFFER_SIZE];
 
   setup_socket(&serverfd);
   setup_address(&host_addr, &host_addrlen, PORT);
@@ -25,17 +27,25 @@ int main(void) {
     return EXIT_FAILURE;
   }
 
-  if (listen(serverfd, MAXCON) != 0) {
+  if (listen(serverfd, SOMAXCONN) != 0) {
     perror("Listen");
     close(serverfd);
     return EXIT_FAILURE;
   }
 
   while(1) {
-    int clientfd = accept(serverfd, (struct sockaddr *)&host_addr, host_addrlen);
+    int clientfd = accept(serverfd, (struct sockaddr *)&host_addr, &host_addrlen);
     if(clientfd < 0) {
-      perror("")
+      perror("Client File Descriptor");
+      close(clientfd);
+      continue;
     }
+    
+    int valread = read(clientfd, buffer, BUFFER_SIZE);
+    printf("%s", buffer);
+
+    write(clientfd, "hi", 3);
+    close(clientfd);
   }
 
   printf("Success??\n");
