@@ -5,12 +5,18 @@
 #include <stdlib.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <signal.h>
+#include <pthread.h>
 
 #define PORT 8080
 #define BUFFER_SIZE 1024
 
-int main(void) {
+static void setup_signal_handler(void);
+static void sigint_handler(int signum);
 
+static volatile sig_atomic_t exit_flag = 0;    // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+
+int main(void) {
 
   int serverfd;
   socklen_t host_addrlen;
@@ -32,7 +38,8 @@ int main(void) {
     return EXIT_FAILURE;
   }
 
-  while (1) {
+    setup_signal_handler();
+  while (!exit_flag) {
     ssize_t valread;
     int clientfd;
     clientfd = accept(serverfd, (struct sockaddr *)&host_addr, &host_addrlen);
@@ -48,7 +55,8 @@ int main(void) {
     }
     printf("%s", buffer);
 
-    write(clientfd, "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nHello\0", 52);
+    write(clientfd, "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\nHello World!",
+          50);
     close(clientfd);
   }
 
@@ -56,3 +64,39 @@ int main(void) {
   close(serverfd);
   return 0;
 }
+
+
+static void setup_signal_handler(void)
+{
+    struct sigaction sa;
+
+    memset(&sa, 0, sizeof(sa));
+
+#if defined(__clang__)
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdisabled-macro-expansion"
+#endif
+    sa.sa_handler = sigint_handler;
+#if defined(__clang__)
+    #pragma clang diagnostic pop
+#endif
+
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+
+    if(sigaction(SIGINT, &sa, NULL) == -1)
+    {
+        perror("sigaction");
+        exit(EXIT_FAILURE);
+    }
+}
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+
+static void sigint_handler(int signum)
+{
+    exit_flag = 1;
+}
+
+#pragma GCC diagnostic pop
