@@ -1,100 +1,80 @@
-# template-c Repository Guide
+### COMP4981 Assignment 1
+Simple HTTP Server
 
-Welcome to the `c template` repository. This guide will help you set up and run the provided scripts.
+Project Requirements:
+- HTTP server capable of handling multiple client connections concurrently
+- Use POSIX socket API
+- Parse and respond to basic HTTP requests
+- Compatibility across Linux, FreeBSD, and macOS platforms
+- Accept HTTP GET and HEAD requests and respond with appropriate content
+- Proper error handling for unsupported methods or missing files
 
-## **Table of Contents**
+## Contributors
 
-1. [Cloning the Repository](#cloning-the-repository)
-2. [Prerequisites](#Prerequisites)
-3. [Running the `generate-cmakelists.sh` Script](#running-the-generate-cmakelistssh-script)
-4. [Running the `change-compiler.sh` Script](#running-the-change-compilersh-script)
-5. [Running the `build.sh` Script](#running-the-buildsh-script)
-5. [Running the `build-all.sh` Script](#running-the-build-allsh-script)
-6. [Copy the template to start a new project](#copy-the-template-to-start-a-new-project)
+Kevin Nguyen [https://github.com/kvnbanunu]
 
-## **Cloning the Repository**
+Evin Gonzales [https://github.com/evin-gg]
 
-Clone the repository using the following command:
+## Prerequisites
 
-```bash
-git clone https://github.com/programming101dev/template-c.git
+This project uses a build system written by D'arcy Smith.
+
+To compile using the build system you need:
+- D'arcy's libraries built from [https://github.com/programming101dev/scripts]
+
+Tested Platforms:
+- Arch Linux 2024.12.01
+- Manjaro 24.2
+- Ubuntu 2024.04.1
+- MacOS 14.2 (clang only)
+- FreeBSD 14.0-RELEASE-p4
+
+Dependencies:
+- gcc or clang (Makefile specifies gcc)
+- make
+
+## Installation
+
+Clone this repository:
+```sh
+git clone --single-branch -branch comp3980 https://github.com/kvnbanunu/networkroyale
 ```
 
-Navigate to the cloned directory:
-
-```bash
-cd template-c
+Build with make:
+```sh
+make build
 ```
 
-Ensure the scripts are executable:
+Build with D'arcy's system:
+1. Link your .flags directory
+   ```sh
+   ./link-flags.sh <path>/.flags
+   ```
+2. Change compiler to gcc or clang
+   ```sh
+   ./change-compiler.sh -c <gcc or clang>
+   ```
+3. Generate cmakelist
+   ```sh
+   ./generate-cmakelists.sh
+   ```
+4. Build
+   ```sh
+   ./build.sh
+   ```
 
-```bash
-chmod +x *.sh
-```
+## Usage
 
-## **Prerequisites**
-
-- to ensure you have all of the required tools installed, run:
-```bash
-./check-env.sh
-```
-
-If you are missing tools follow these [instructions](https://docs.google.com/document/d/1ZPqlPD1mie5iwJ2XAcNGz7WeA86dTLerFXs9sAuwCco/edit?usp=drive_link).
-
-## **Running the generate-cmakelists.sh Script**
-
-You will need to create the CMakeLists.txt file:
-
-```bash
-./generate-cmakelists.sh
-```
-
-## **Running the change-compiler.sh Script**
-
-Tell CMake which compiler you want to use:
-
-```bash
-./change-compiler.sh -c <compiler>
-```
-
-To the see the list of possible compilers:
-
-```bash
-cat supported_cxx_compilers.txt
-```
-
-## **Running the build.sh Script**
-
-To build the program run:
-
-```bash
-./build.sh
-```
-
-## **Running the build-all.sh Script**
-
-To build the program with all compilers run:
-
-```bash
-./build-all.sh
-```
-
-## **Copy the template to start a new project**
-
-To create a new project from the template, run:
-
-```bash
-./copy-template.sh <desitnation directory>
-```
-
-This will copy all of the files needed to start a new project.
-
-1. Edit the files.txt
-2. run ./generate-cmakelists.sh
-3. run ./change-compiler.sh -c <compiler>
-4. run ./build.sh
-
-The files.txt file contains:
-<executable> <source files> <header files> <libraries>
-
-When you need to add/removes files to/from the project you must rerun the 4 steps above. 
+1. Change to build directory
+   ```sh
+   cd build/
+   ```
+2. Run server
+   ```sh
+   ./server
+   ```
+3. Open another terminal on the same computer or another computer on the same network
+4. Run client
+   ```sh
+   ./client <ip address> <port>
+   ```
