@@ -1,0 +1,1 @@
+var a = "This is in the .js file";
