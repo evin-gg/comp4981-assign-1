@@ -23,7 +23,6 @@ int main(void) {
   int serverfd;
   socklen_t host_addrlen;
   struct sockaddr_in host_addr;
-  // char buffer[BUFFER_SIZE];
   pthread_t listenerThread;
 
   setup_socket(&serverfd);
@@ -43,7 +42,6 @@ int main(void) {
 
   setup_signal_handler();
   while (!exit_flag) {
-    // ssize_t valread;
     int clientfd;
 
     clientfd = accept(serverfd, (struct sockaddr *)&host_addr, &host_addrlen);
@@ -58,20 +56,8 @@ int main(void) {
     }
     pthread_join(listenerThread, NULL);
 
-    // valread = read(clientfd, buffer, BUFFER_SIZE);
-    // if (valread < 0) {
-    //   close(clientfd);
-    //   continue;
-    // }
-    // printf("%s", buffer);
-
-    // write(clientfd, "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\nHello
-    // World!",
-    //       50);
     close(clientfd);
   }
-
-  printf("Success??\n");
   close(serverfd);
   return 0;
 }

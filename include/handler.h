@@ -4,9 +4,8 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-#define BUFFER_SIZE 8912
+#define BUFFER_SIZE 256
 #define DATE_SIZE 29
-// #define CHAR_COUNT 41
 
 void *handle_request(void *arg);
 void parse_request(char **method, char **path, char **protocol, char *buffer);
@@ -19,8 +18,10 @@ void construct_get_response404(int clientfd);
 void construct_get_response403(int clientfd);
 void construct_get_response200(int clientfd, const char *mime, int filefd);
 
-void get_time(char * timestr, ssize_t size);
+void get_time(char * timestr, size_t size);
 int can_read_file(const char *file_path);
 int file_exists(const char *file_path);
 
 const char* get_mime_type(const char *file_path);
+
+size_t find_content_length(int fd);
