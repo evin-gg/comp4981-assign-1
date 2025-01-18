@@ -14,80 +14,95 @@
 static void setup_signal_handler(void);
 static void sigint_handler(int signum);
 
-static volatile sig_atomic_t
-    exit_flag = // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
-    0;
+static volatile sig_atomic_t exit_flag = 0;    // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
-int main(void) {
+int main(void)
+{
+    int                serverfd;
+    socklen_t          host_addrlen;
+    struct sockaddr_in host_addr;
+    pthread_t          listenerThread;
 
-  int serverfd;
-  socklen_t host_addrlen;
-  struct sockaddr_in host_addr;
-  pthread_t listenerThread;
+    setup_socket(&serverfd);
+    setup_address(&host_addr, &host_addrlen, PORT);
 
-  setup_socket(&serverfd);
-  setup_address(&host_addr, &host_addrlen, PORT);
-
-  if (bind(serverfd, (struct sockaddr *)&host_addr, host_addrlen) != 0) {
-    perror("Bind");
-    close(serverfd);
-    return EXIT_FAILURE;
-  }
-
-  if (listen(serverfd, SOMAXCONN) != 0) {
-    perror("Listen");
-    close(serverfd);
-    return EXIT_FAILURE;
-  }
-
-  setup_signal_handler();
-  while (!exit_flag) {
-    int clientfd;
-
-    clientfd = accept(serverfd, (struct sockaddr *)&host_addr, &host_addrlen);
-    if (clientfd < 0) {
-      perror("Client File Descriptor");
-      continue;
+    if(bind(serverfd, (struct sockaddr *)&host_addr, host_addrlen) != 0)
+    {
+        perror("Bind");
+        close(serverfd);
+        return EXIT_FAILURE;
     }
 
-    if (pthread_create(&listenerThread, NULL, handle_request,
-                       (void *)&clientfd) != 0) {
-      fprintf(stderr, "Error: Could not create thread");
+    if(listen(serverfd, SOMAXCONN) != 0)
+    {
+        perror("Listen");
+        close(serverfd);
+        return EXIT_FAILURE;
     }
-    pthread_join(listenerThread, NULL);
 
-    close(clientfd);
-  }
-  close(serverfd);
-  return 0;
+    printf("Server listening on port: %d\n", PORT);
+
+    setup_signal_handler();
+    while(!exit_flag)
+    {
+        int clientfd;
+
+        clientfd = accept(serverfd, (struct sockaddr *)&host_addr, &host_addrlen);
+        if(clientfd < 0)
+        {
+            if(exit_flag)
+            {
+                break;
+            }
+            perror("Client File Descriptor");
+            continue;
+        }
+
+        if(pthread_create(&listenerThread, NULL, handle_request, (void *)&clientfd) != 0)
+        {
+            fprintf(stderr, "Error: Could not create thread");
+        }
+        pthread_join(listenerThread, NULL);
+
+        close(clientfd);
+    }
+    close(serverfd);
+    return 0;
 }
 
-static void setup_signal_handler(void) {
-  struct sigaction sa;
+static void setup_signal_handler(void)
+{
+    struct sigaction sa;
 
-  memset(&sa, 0, sizeof(sa));
+    memset(&sa, 0, sizeof(sa));
 
 #if defined(__clang__)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdisabled-macro-expansion"
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdisabled-macro-expansion"
 #endif
-  sa.sa_handler = sigint_handler;
+    sa.sa_handler = sigint_handler;
 #if defined(__clang__)
-#pragma clang diagnostic pop
+    #pragma clang diagnostic pop
 #endif
 
-  sigemptyset(&sa.sa_mask);
-  sa.sa_flags = 0;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
 
-  if (sigaction(SIGINT, &sa, NULL) == -1) {
-    perror("sigaction");
-    exit(EXIT_FAILURE);
-  }
+    if(sigaction(SIGINT, &sa, NULL) == -1)
+    {
+        perror("sigaction");
+        exit(EXIT_FAILURE);
+    }
 }
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
-static void sigint_handler(int signum) { exit_flag = 1; }
+static void sigint_handler(int signum)
+{
+    const char *shutdown_message = "\nServer shutting down...\n";
+    exit_flag                    = 1;
+    write(1, shutdown_message, strlen(shutdown_message) + 1);
+}
 
 #pragma GCC diagnostic pop
