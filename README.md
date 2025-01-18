@@ -31,18 +31,12 @@ Tested Platforms:
 
 Dependencies:
 - gcc or clang (Makefile specifies gcc)
-- make
 
 ## Installation
 
 Clone this repository:
 ```sh
 git clone --single-branch -branch comp3980 https://github.com/kvnbanunu/networkroyale
-```
-
-Build with make:
-```sh
-make build
 ```
 
 Build with D'arcy's system:
@@ -64,17 +58,11 @@ Build with D'arcy's system:
    ```
 
 ## Usage
-
-1. Change to build directory
+1. From the root directory, start the server.
    ```sh
-   cd build/
+   ./build/main
    ```
-2. Run server
+2. Send a GET or HEAD request.
    ```sh
-   ./server
-   ```
-3. Open another terminal on the same computer or another computer on the same network
-4. Run client
-   ```sh
-   ./client <ip address> <port>
+   curl -I <server ipv4 address>:8080/index.html
    ```
