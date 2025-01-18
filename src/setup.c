@@ -8,7 +8,7 @@
 
 void setup_socket(int *fd)
 {
-    *fd = socket(AF_INET, SOCK_STREAM, 0);
+    *fd = socket(AF_INET, SOCK_STREAM, 0); // NOLINT(android-cloexec-socket)
     if(*fd < 0)
     {
         perror("Server Socket creation");
